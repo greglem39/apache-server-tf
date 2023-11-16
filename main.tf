@@ -118,6 +118,7 @@ resource "aws_instance" "web-instance" {
   ami             = "ami-06d4b7182ac3480fa"
   instance_type   = var.instance-type
   user_data       = file("install_apache.sh")
+  # user_data = file("install_apache_test.sh") # this is for testing purposes only
   tags = {
     Name = "web-instance-tf"
   }
