@@ -92,6 +92,11 @@ variable "instance-type" {
 
 }
 
+variable "ami-name" {
+  default = "ami-06d4b7182ac3480fa"
+
+}
+
 variable "ingress-ssh-port" {
   default = 22
 

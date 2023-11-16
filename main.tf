@@ -115,7 +115,7 @@ resource "aws_security_group" "web-sg" {
 resource "aws_instance" "web-instance" {
   security_groups = [aws_security_group.web-sg.id]
   subnet_id       = aws_subnet.web-subnet.id
-  ami             = "ami-06d4b7182ac3480fa"
+  ami             = var.ami-name
   instance_type   = var.instance-type
   user_data       = file("install_apache.sh")
   # user_data = file("install_apache_test.sh") # this is for testing purposes only
