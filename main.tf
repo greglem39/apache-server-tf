@@ -115,10 +115,9 @@ resource "aws_security_group" "web-sg" {
 resource "aws_instance" "web-instance" {
   security_groups = [aws_security_group.web-sg.id]
   subnet_id       = aws_subnet.web-subnet.id
-  # subnet_id     = aws_default_subnet.default_az1.id # this is for testing only, we are not going to be using this ... 
-  ami           = "ami-06d4b7182ac3480fa"
-  instance_type = var.instance-type
-  user_data     = file("install_apache.sh")
+  ami             = "ami-06d4b7182ac3480fa"
+  instance_type   = var.instance-type
+  user_data       = file("install_apache.sh")
   tags = {
     Name = "web-instance-tf"
   }
