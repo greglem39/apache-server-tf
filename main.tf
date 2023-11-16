@@ -94,7 +94,7 @@ resource "aws_security_group" "web-sg" {
     from_port        = var.ingress-ssh-port
     to_port          = var.ingress-ssh-port
     protocol         = var.ssh-protocol
-    cidr_blocks      = [var.sg-ipv4-cidr]
+    cidr_blocks      = [var.ingress-ssh-cidr]
     ipv6_cidr_blocks = [var.sg-ipv6-cidr]
   }
   egress {
