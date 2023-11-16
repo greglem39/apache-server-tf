@@ -107,11 +107,6 @@ variable "ssh-protocol" {
 
 }
 
-variable "ingress-ssh-cidr" {
-  default = "3.16.146.0/29" # this cidr is for us-east-2 only
-
-}
-
 variable "nacl-ingress-protocol" {
   default = "-1"
 
