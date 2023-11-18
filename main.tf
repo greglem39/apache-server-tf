@@ -66,7 +66,6 @@ resource "aws_network_acl" "web-acl" {
     cidr_block = var.nacl-egress-cidr
     rule_no    = var.nacl-egress-rule-no
   }
-
 }
 
 # resource "aws_default_subnet" "default_az1" { # this was for testing only
@@ -111,15 +110,19 @@ resource "aws_security_group" "web-sg" {
   }
 }
 
-# create Ec2 instance
+# create Ec2 instance to test the creation of an Apache server
 resource "aws_instance" "web-instance" {
   security_groups = [aws_security_group.web-sg.id]
   subnet_id       = aws_subnet.web-subnet.id
   ami             = var.ami-name
   instance_type   = var.instance-type
-  user_data       = file("install_apache.sh")
-  # user_data = file("install_apache_test.sh") # this is for testing purposes only
+  # user_data       = file("install_apache.sh")
+  user_data = file("install_apache_test.sh") # this is for testing purposes only
   tags = {
     Name = "web-instance-tf"
   }
 }
+
+# let's add an ALB or two and an ASG for a target 
+# additionally, we'll be converting the EC2 instance into an LT 
+# https://aws.plainenglish.io/deploying-a-aws-autoscaling-group-with-terraform-f487b865444f
