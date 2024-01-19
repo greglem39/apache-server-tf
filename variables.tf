@@ -159,3 +159,25 @@ variable "nacl-egress-rule-no" {
   default = 100
 
 }
+
+variable "launch-template-name" {
+  default     = "apache-lt"
+  description = "name of the launch template we're using"
+
+}
+
+variable "desired-capacity" {
+  default     = 2
+  description = "desired capacity of our ASG"
+}
+
+variable "max-size" {
+  default     = 4
+  description = "max size of our ASG"
+}
+
+variable "min-size" {
+  default     = 1
+  description = "min size of our ASG"
+}
+

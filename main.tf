@@ -111,18 +111,48 @@ resource "aws_security_group" "web-sg" {
 }
 
 # create Ec2 instance to test the creation of an Apache server
-resource "aws_instance" "web-instance" {
-  security_groups = [aws_security_group.web-sg.id]
-  subnet_id       = aws_subnet.web-subnet.id
-  ami             = var.ami-name
-  instance_type   = var.instance-type
-  # user_data       = file("install_apache.sh")
-  user_data = file("install_apache_test.sh") # this is for testing purposes only
-  tags = {
-    Name = "web-instance-tf"
-  }
-}
+# resource "aws_instance" "web-instance" {
+#   security_groups = [aws_security_group.web-sg.id]
+#   subnet_id       = aws_subnet.web-subnet.id
+#   ami             = var.ami-name
+#   instance_type   = var.instance-type
+#   user_data       = filebase64("install_apache.sh")
+#   user_data = filebase64("install_apache_test.sh") # this is for testing purposes only
+#   tags = {
+#     Name = "web-instance-tf"
+#   }
+# }
 
 # let's add an ALB or two and an ASG for a target 
 # additionally, we'll be converting the EC2 instance into an LT 
 # https://aws.plainenglish.io/deploying-a-aws-autoscaling-group-with-terraform-f487b865444f
+
+resource "aws_launch_template" "web-server-lt" {
+  name = var.launch-template-name
+  tags = {
+    Name = var.launch-template-name
+  }
+  image_id      = var.ami-name
+  instance_type = var.instance-type
+  network_interfaces {
+    device_index    = 0
+    security_groups = [aws_security_group.web-sg.id]
+    subnet_id       = aws_subnet.web-subnet.id
+  }
+  # user_data       = filebase64("install_apache.sh")
+  user_data = filebase64("install_apache_test.sh") # this is for testing purposes only
+}
+
+resource "aws_autoscaling_group" "web-server-asg" {
+  desired_capacity    = var.desired-capacity
+  min_size            = var.min-size
+  max_size            = var.max-size
+  vpc_zone_identifier = [aws_security_group.web-sg.id]
+  # target_group_arns = [  ]
+  launch_template {
+    id      = aws_launch_template.web-server-lt.id
+    version = aws_launch_template.web-server-lt.latest_version
+  }
+}
+
+
