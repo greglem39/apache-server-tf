@@ -147,12 +147,11 @@ resource "aws_autoscaling_group" "web-server-asg" {
   desired_capacity    = var.desired-capacity
   min_size            = var.min-size
   max_size            = var.max-size
-  vpc_zone_identifier = [aws_security_group.web-sg.id]
+  vpc_zone_identifier = [aws_subnet.web-subnet.id]
   # target_group_arns = [  ]
   launch_template {
     id      = aws_launch_template.web-server-lt.id
     version = aws_launch_template.web-server-lt.latest_version
   }
 }
-
 
