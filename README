@@ -1,0 +1,11 @@
+The purpose of this project is for me to brush up on some Terraform, as it has been a couple years.
+
+Initial goal - automate the configuration of an Apache web server with a test page along with the requisite networking resources.
+
+After achieving this goal, I went ahead and decided to expand on this by creating an Application Load Balancer, Autoscaling Group, Target Group, and converted the original EC2 which served as my Apache web server into a Launch Template. This is to give a bit of scalability to the solution as practice.
+
+Important note: Before you deploy this, you will need to configure your backend and AWS credentials. I went ahead and used the cloud backend so I would avoid configuring credentials locally. This is to ensure the security of my AWS lab environment. For more information on how to configure the backend and credentials, I recommend that you refer to the documentation below:
+
+AWS Provider/Credentials - https://registry.terraform.io/providers/hashicorp/aws/latest/docs
+
+Terraform Cloud Backend - https://developer.hashicorp.com/terraform/cli/cloud/settings
