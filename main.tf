@@ -18,14 +18,14 @@ resource "aws_internet_gateway" "web-igw" {
 
 # create subnet for the EC2 instance
 resource "aws_subnet" "web-subnet" {
+  count                   = 2
   vpc_id                  = aws_vpc.web-vpc.id
-  cidr_block              = var.web_subnet_cidr
-  availability_zone       = var.availability-zone
+  cidr_block              = var.web_subnet_cidr[count.index]
+  availability_zone       = var.subnet_az[count.index]
   map_public_ip_on_launch = var.subnet_map_public
-  tags = {
-    Name = var.web_subnet_name
-  }
 }
+
+# need to create a second subnet, per ALB requirements
 
 # # creating a route table for our subnet
 resource "aws_route_table" "public-rt" {
@@ -41,14 +41,15 @@ resource "aws_route_table" "public-rt" {
 
 # rt association
 resource "aws_route_table_association" "public-rt-association" {
-  subnet_id      = aws_subnet.web-subnet.id
+  count          = 2
+  subnet_id      = aws_subnet.web-subnet[count.index].id
   route_table_id = aws_route_table.public-rt.id
 }
 
 # network ACL
 resource "aws_network_acl" "web-acl" {
   vpc_id     = aws_vpc.web-vpc.id
-  subnet_ids = [aws_subnet.web-subnet.id]
+  subnet_ids = [for i in aws_subnet.web-subnet : i.id]
   # allow ingress all
   ingress {
     protocol   = var.nacl-ingress-protocol
@@ -117,15 +118,17 @@ resource "aws_security_group" "web-sg" {
 #   ami             = var.ami-name
 #   instance_type   = var.instance-type
 #   user_data       = filebase64("install_apache.sh")
-#   user_data = filebase64("install_apache_test.sh") # this is for testing purposes only
 #   tags = {
 #     Name = "web-instance-tf"
 #   }
 # }
 
+# ==============================================================================================================
+# UP TO THIS POINT HAS WORKED. FROM HERE, I AM ADDING A BIT OF AUTOSCALING FUNCTIONALITY TO EXPAND ON THE ABOVE. 
+# ==============================================================================================================
+
 # let's add an ALB or two and an ASG for a target 
-# additionally, we'll be converting the EC2 instance into an LT 
-# https://aws.plainenglish.io/deploying-a-aws-autoscaling-group-with-terraform-f487b865444f
+# additionally, we'll be converting the EC2 instance into an LT to help with scaling
 
 resource "aws_launch_template" "web-server-lt" {
   name = var.launch-template-name
@@ -137,21 +140,47 @@ resource "aws_launch_template" "web-server-lt" {
   network_interfaces {
     device_index    = 0
     security_groups = [aws_security_group.web-sg.id]
-    subnet_id       = aws_subnet.web-subnet.id
   }
-  # user_data       = filebase64("install_apache.sh")
-  user_data = filebase64("install_apache_test.sh") # this is for testing purposes only
+  user_data = filebase64("install_apache.sh")
 }
 
 resource "aws_autoscaling_group" "web-server-asg" {
   desired_capacity    = var.desired-capacity
   min_size            = var.min-size
   max_size            = var.max-size
-  vpc_zone_identifier = [aws_subnet.web-subnet.id]
-  # target_group_arns = [  ]
+  vpc_zone_identifier = [for i in aws_subnet.web-subnet : i.id]
+  target_group_arns   = [aws_alb_target_group.alb-target-group.arn]
   launch_template {
     id      = aws_launch_template.web-server-lt.id
     version = aws_launch_template.web-server-lt.latest_version
   }
 }
 
+resource "aws_alb" "web-alb" {
+  name               = var.elb-name
+  internal           = var.internal-elb
+  load_balancer_type = var.elb-type
+  security_groups    = [aws_security_group.web-sg.id]
+  subnets            = [for i in aws_subnet.web-subnet : i.id]
+}
+
+resource "aws_alb_target_group" "alb-target-group" {
+  name     = var.target-group-name
+  port     = var.target-group-port
+  protocol = var.target-group-protocol
+  vpc_id   = aws_vpc.web-vpc.id
+  health_check {
+    path    = var.health-check-path
+    matcher = var.health-check-matcher
+  }
+}
+
+resource "aws_alb_listener" "alb-listener" {
+  load_balancer_arn = aws_alb.web-alb.arn
+  port              = var.alb-listener-port
+  protocol          = var.alb-listner-protocol
+  default_action {
+    type             = var.action-type
+    target_group_arn = aws_alb_target_group.alb-target-group.arn
+  }
+}

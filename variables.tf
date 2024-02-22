@@ -25,9 +25,16 @@ variable "web_igw_name" {
   description = "name of the IGW"
 }
 
+variable "subnet_az" {
+  default     = ["us-east-2a", "us-east-2b"]
+  description = "the AZ in which you'll deploy your stuff"
+  type        = list(string)
+}
+
 variable "web_subnet_cidr" {
-  default     = "10.16.1.0/24"
+  default     = ["10.16.1.0/24", "10.16.2.0/24"]
   description = "subnet CIDR"
+  type        = list(string)
 }
 
 variable "web_subnet_name" {
@@ -181,3 +188,67 @@ variable "min-size" {
   description = "min size of our ASG"
 }
 
+variable "elb-type" {
+  default     = "application"
+  description = "load balancer type"
+
+}
+
+variable "internal-elb" {
+  default     = false
+  description = "internal elb - true/false"
+}
+
+variable "elb-name" {
+  default     = "web-alb"
+  description = "name of elb"
+
+}
+
+variable "target-group-name" {
+  default     = "web-target-group"
+  description = "name of alb target group"
+
+}
+
+variable "target-group-port" {
+  default     = 80
+  description = "default port for alb tg"
+
+}
+
+variable "target-group-protocol" {
+  default     = "HTTP"
+  description = "target group protocol"
+
+}
+
+variable "health-check-path" {
+  default     = "/"
+  description = "health check path"
+
+}
+
+variable "health-check-matcher" {
+  default     = 200
+  description = "health check match val"
+
+}
+
+variable "alb-listener-port" {
+  default     = 80
+  description = "default port for listener"
+
+}
+
+variable "alb-listner-protocol" {
+  default     = "HTTP"
+  description = "default protocol for listener"
+
+}
+
+variable "action-type" {
+  default     = "forward"
+  description = "default action for listener"
+
+}

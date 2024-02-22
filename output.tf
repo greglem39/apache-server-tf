@@ -3,12 +3,6 @@
 
 # }
 
-output "lt-arn" {
-  value = aws_launch_template.web-server-lt.arn
-
-}
-
-output "asg-arn" {
-  value = aws_autoscaling_group.web-server-asg.arn
-
+output "alb-dns" {
+  value = aws_alb.web-alb.dns_name
 }
