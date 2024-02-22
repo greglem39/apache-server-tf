@@ -1,9 +1,9 @@
 terraform {
   cloud {
-    organization = "glitchycat"
+    organization = "[your org here]"
 
     workspaces {
-      name = "apache-server-tf"
+      name = "[your project here]"
     }
 
   }
